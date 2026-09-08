@@ -75,6 +75,57 @@ img{max-width:100%;display:block;}
 }
 .btn-del:hover{background:#7E2323;}
 
+/* ---------- TOP TICKER ---------- */
+.top-ticker{
+  position:relative;
+  z-index:20; /* sits above the summary card so it never gets hidden behind it */
+  background:#330A18;
+  color:#fff;
+  overflow:hidden;
+  white-space:nowrap;
+  padding:10px 0;
+  font-weight:700;
+  border-top:2px solid #E8A33D;
+  border-bottom:2px solid #E8A33D;
+  box-shadow:0 4px 14px rgba(51,10,24,0.35);
+}
+
+.top-ticker span{
+  display:inline-block;
+  padding-left:100%;
+  animation:tickerMove 18s linear infinite;
+}
+
+@keyframes tickerMove{
+  0%{transform:translateX(0);}
+  100%{transform:translateX(-100%);}
+}
+
+/* ---------- GANESHA DECORATION ---------- */
+.ganesha-icon{
+  position:absolute;
+  top:16px;
+  right:22px;
+  font-size:2.4rem;
+  line-height:1;
+  z-index:3;
+  animation:ganeshaFloat 3.2s ease-in-out infinite, ganeshaGlow 2.6s ease-in-out infinite;
+  filter:drop-shadow(0 0 6px rgba(232,163,61,0.6));
+  user-select:none;
+  pointer-events:none;
+}
+@keyframes ganeshaFloat{
+  0%,100%{transform:translateY(0) rotate(-4deg);}
+  50%{transform:translateY(-12px) rotate(4deg);}
+}
+@keyframes ganeshaGlow{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(232,163,61,0.45));}
+  50%{filter:drop-shadow(0 0 16px rgba(244,201,93,0.95));}
+}
+@media (prefers-reduced-motion: reduce){
+  .ganesha-icon{animation:none;}
+}
+
 /* ---------- HERO ---------- */
 .hero{
   position:relative;
@@ -93,6 +144,7 @@ img{max-width:100%;display:block;}
     linear-gradient(-135deg, var(--turmeric) 25%, transparent 25%);
   opacity:0.9;
 }
+.hero-content{position:relative;z-index:2;}
 .hero .eyebrow{
   font-size:0.85rem;letter-spacing:0.02em;color:var(--turmeric);
   font-weight:600;margin-top:26px;
@@ -103,12 +155,42 @@ img{max-width:100%;display:block;}
   margin-top:10px;
   max-width:720px;
   margin-left:auto;margin-right:auto;
+  color:var(--ivory);
+  text-shadow:0 2px 18px rgba(0,0,0,0.35);
 }
 .hero p.loc{color:#E8D9CE;margin-top:8px;font-size:1.05rem;}
 
 .hero .countdown-row{
   display:flex;gap:18px;justify-content:center;flex-wrap:wrap;
   margin-top:38px;
+}
+
+/* ---------- HERO GANESHA WATERMARK ---------- */
+.ganesha-bg{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:min(70vw, 420px);
+  z-index:1;
+  opacity:0.16;
+  pointer-events:none;
+  user-select:none;
+  animation:ganeshaBgFloat 7s ease-in-out infinite, ganeshaBgGlow 4.5s ease-in-out infinite;
+}
+.ganesha-bg svg{width:100%;height:auto;display:block;}
+@keyframes ganeshaBgFloat{
+  0%,100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);}
+  50%{transform:translate(-50%,-52%) scale(1.035) rotate(1deg);}
+}
+@keyframes ganeshaBgGlow{
+  0%,100%{opacity:0.13;}
+  50%{opacity:0.24;}
+}
+@media (prefers-reduced-motion: reduce){
+  .ganesha-bg{animation:none;}
+}
+@media(max-width:600px){
+  .ganesha-bg{width:78vw;}
 }
 .hero .cd-chip{
   background:rgba(255,255,255,0.08);
@@ -169,9 +251,23 @@ thead th{
 }
 tbody td{padding:9px 12px;border-bottom:1px solid var(--line);}
 tbody tr:last-child td{border-bottom:none;}
-.rank-1{background:#F6E2AE;font-weight:700;}
-.rank-2{background:#EFE3D0;font-weight:700;}
-.rank-3{background:#E9D3B7;font-weight:700;}
+.rank-1{
+  background:#d4edda;
+  color:#155724;
+  font-weight:700;
+}
+
+.rank-2{
+  background:#fff3cd;
+  color:#856404;
+  font-weight:700;
+}
+
+.rank-3{
+  background:#ffe5b4;
+  color:#cc7000;
+  font-weight:700;
+}
 .empty-row td{text-align:center;color:var(--ink-soft);padding:22px;font-style:italic;}
 
 /* ---------- YOUTUBE / QR BOXES ---------- */
@@ -227,23 +323,64 @@ footer{
   <button class="btn ghost" id="admin-btn" onclick="showLogin()">Admin</button>
 </div>
 
+<div class="top-ticker">
+   <span id="tickerText">
+      Total Collection ₹0 | Highest Donor: -
+   </span>
+</div>
+
 <!-- HERO -->
 <div class="hero" id="dashboard">
   <div class="bunting"></div>
-  <div class="eyebrow">Valasareddygaripalli Youth Committee</div>
-  <h1>Sri Vinayaka Chaturthi Festival Fund</h1>
-  <p class="loc">Community contributions, tracked openly, for everyone in the village.</p>
+  <div class="ganesha-icon" aria-hidden="true">🐘</div>
 
-  <div class="countdown-row">
-    <div class="cd-chip">
-      <div class="label">Vinayaka Chaturthi</div>
-      <div class="date">14 Sep 2026</div>
-      <div class="value" id="countdown1">—</div>
-    </div>
-    <div class="cd-chip">
-      <div class="label">Shobhayatra</div>
-      <div class="date">14 Sep 2026 · 6:00 PM</div>
-      <div class="value" id="countdown2">—</div>
+  <div class="ganesha-bg" aria-hidden="true">
+    <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="gGlow" cx="50%" cy="42%" r="60%">
+          <stop offset="0%" stop-color="#F4C95D"/>
+          <stop offset="100%" stop-color="#F4C95D" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="200" cy="180" r="190" fill="url(#gGlow)"/>
+      <!-- crown -->
+      <path d="M160 70 L170 40 L185 65 L200 30 L215 65 L230 40 L240 70 Z" fill="#F4C95D"/>
+      <circle cx="200" cy="35" r="8" fill="#F4C95D"/>
+      <!-- ears -->
+      <ellipse cx="110" cy="175" rx="55" ry="65" fill="#E8A33D"/>
+      <ellipse cx="290" cy="175" rx="55" ry="65" fill="#E8A33D"/>
+      <ellipse cx="110" cy="175" rx="32" ry="42" fill="#330A18" opacity="0.35"/>
+      <ellipse cx="290" cy="175" rx="32" ry="42" fill="#330A18" opacity="0.35"/>
+      <!-- head -->
+      <ellipse cx="200" cy="165" rx="105" ry="95" fill="#F4C95D"/>
+      <!-- eyes -->
+      <ellipse cx="165" cy="150" rx="10" ry="13" fill="#330A18"/>
+      <ellipse cx="235" cy="150" rx="10" ry="13" fill="#330A18"/>
+      <!-- trunk -->
+      <path d="M195 190 C170 210, 165 245, 190 265 C205 278, 225 270, 222 250 C220 235, 200 235, 200 220 C200 205, 210 195, 195 190 Z" fill="#E8A33D"/>
+      <!-- tusk -->
+      <path d="M225 210 L250 225 L235 232 Z" fill="#FBF3E4"/>
+      <!-- neck / body hint -->
+      <path d="M110 250 Q200 320 290 250 L290 400 L110 400 Z" fill="#5C1128" opacity="0.55"/>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="eyebrow">Valasareddygaripalli Youth Committee</div>
+    <h1>Sri Vinayaka Chaturthi Festival Fund</h1>
+    <p class="loc">Community contributions, tracked openly, for everyone in the village.</p>
+
+    <div class="countdown-row">
+      <div class="cd-chip">
+        <div class="label">Vinayaka Chaturthi</div>
+        <div class="date">14 Sep 2026</div>
+        <div class="value" id="countdown1">—</div>
+      </div>
+      <div class="cd-chip">
+        <div class="label">Shobhayatra</div>
+        <div class="date">14 Sep 2026 · 6:00 PM</div>
+        <div class="value" id="countdown2">—</div>
+      </div>
     </div>
   </div>
 </div>
@@ -309,22 +446,32 @@ footer{
   <div class="divider"></div>
 
   <!-- PHOTOS -->
-  <div class="card split-card" style="margin-top:24px;">
-    <img class="qr" src="./qr%20photos.jpeg" alt="Festival photos QR code"
-         onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://q.me-qr.com/2w834wpt'">
-    <div>
-      <h3 style="margin-bottom:6px;">📸 Festival photos</h3>
-      <p style="color:var(--ink-soft);margin-bottom:12px;">Scan the QR code to view and download photos from the festival.</p>
-      <a href="https://q.me-qr.com/2w834wpt" target="_blank" class="btn gold">Open photo gallery</a>
-    </div>
+<div class="card split-card" style="margin-top:24px;">
+  <img class="qr"
+       src="qrcode.png"
+       alt="Festival Photos QR Code">
+
+  <div>
+    <h3 style="margin-bottom:6px;">📸 Festival Photos</h3>
+
+    <p style="color:var(--ink-soft);margin-bottom:12px;">
+      Scan the QR code to view and download all festival photos.
+    </p>
+
+    <a href="https://drive.google.com/drive/folders/1TfMdaksTwQed2gzvhJziP1PRQL94oUVh?usp=sharing"
+       target="_blank"
+       class="btn gold">
+       Open Photo Gallery
+    </a>
   </div>
+</div>
 
   <!-- LIVE -->
   <div class="card" style="margin-top:24px;text-align:center;">
     <h3 style="justify-content:center;">🔴 Live Shobhayatra</h3>
     <p class="live-time"><b>Date:</b> 14 Sep 2026</p>
     <p class="live-time" style="margin-bottom:14px;"><b>Time:</b> 6:00 PM</p>
-    <a id="liveBtn" href="https://www.youtube.com/live/pNXvd07315o?si=iLqzy1wdXLOdJr_H" target="_blank" class="btn gold">▶ Watch live</a>
+    <a id="liveBtn" href="https://www.youtube.com/live/8Ywk-474Zqo?si=gX7ikfSdDyEZA09a" target="_blank" class="btn gold">▶ Watch live</a>
   </div>
 
   <!-- GALLERY -->
@@ -435,6 +582,17 @@ function render(){
   const expenseTable = document.getElementById("expenseTable");
 
   const sortedDonors = [...donors].sort((a,b) => b.amount - a.amount);
+
+  const highestDonor = sortedDonors[0];
+
+  let totalCollection = sortedDonors.reduce(
+    (sum,d)=>sum + Number(d.amount || 0),
+    0
+  );
+
+  document.getElementById("tickerText").innerHTML =
+    `🏆 Total Collection ₹${totalCollection} &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; Highest Donor : ${highestDonor ? highestDonor.name : "-"} (₹${highestDonor ? highestDonor.amount : 0})`;
+
   const uniqueAmounts = [...new Set(sortedDonors.map(d => d.amount))].sort((a,b) => b-a);
   const [first, second, third] = uniqueAmounts;
 
