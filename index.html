@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sri vinayaka chaturthi Festival Funding</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f7fb;color:#333}
+.table-scroll {
+  overflow-y: auto;
+}
+/* 🔥 Only fix height when rows are more than 10 */
+.table-scroll:has(tbody tr:nth-child(10)) {
+  height: 400px;
+}/* 🔥 Sticky header */
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
+}
+/* CONTAINER */
+.image-slider {
+  width: 100%;
+  overflow: hidden;
+  margin: 20px auto;
+}
+
+/* TRACK */
+.slider-track {
+  display: flex;
+  gap: 15px;
+  animation: scroll 12s linear infinite;
+}
+
+/* IMAGE FIX */
+.slider-track img {
+  width: 250px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+/* ANIMATION */
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+/* FIXED HEIGHT CARD */
+.countdown-card {
+  height: 350px;
+  overflow-y: auto;
+}
+
+/* COUNT BOX */
+.count-box {
+  text-align: center;
+}
+
+/* BIG COUNTDOWN TEXT */
+.countdown.big {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #2563eb;
+}
+.pooja-card {
+  max-height: 300px;   /* fits beside expenses */
+  overflow-y: auto;
+}
+
+.pooja-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pooja-card th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.pooja-card td, .pooja-card th {
+  padding: 6px;
+  font-size: 13px;
+  border-bottom: 1px solid #ddd;
+}
+/* BALANCE COLORS */
+.balance-green { background:#16a34a !important; color:white; }
+.balance-yellow { background:#eab308 !important; color:black; }
+.balance-red { background:#dc2626 !important; color:white; }
+
+/* HERO */
+.hero{
+  background:url('https://images.unsplash.com/photo-1528747045269-390fe33c19b4') center/cover;
+  padding:120px 20px;
+  text-align:center;
+  color:white;
+  position:relative;
+}
+.hero::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,0.5);}
+.hero h1,.hero p{position:relative;z-index:2}
+
+.container{max-width:1100px;margin:-60px auto 50px;padding:0 20px;display:grid;gap:25px}
+
+.card{background:white;border-radius:14px;padding:25px;box-shadow:0 5px 20px rgba(0,0,0,0.08);}
+.card h3{text-align:center;margin-bottom:20px}
+
+/* BOX GRID */
+.donation-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.donation-box{background:#f1f5f9;padding:20px;border-radius:10px;text-align:center}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.stat-box{background:white;padding:20px;border-radius:10px;text-align:center}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:25px;
+  align-items: start;   /* 🔥 THIS FIXES YOUR ISSUE */
+}
+
+@media(max-width:900px){
+  .dashboard-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+table{width:100%}
+th,td{text-align:center;padding:10px}
+
+.btn{background:#2563eb;color:white;border:none;padding:8px 12px;border-radius:6px}
+
+#admin-btn{position:fixed;bottom:20px;right:20px;background:#2563eb;color:white;padding:12px 18px;border:none;border-radius:30px}
+.yt-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.yt-qr {
+  width: 120px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 10px;
+}
+
+.yt-text {
+  font-size: 13px;
+  color: gray;
+  margin-bottom: 10px;
+}
+/* ADMIN PANEL */
+.admin-panel {
+  margin-top: 30px;
+}
+
+/* ADMIN CARD */
+.admin-card {
+  max-width: 400px;
+  margin: auto;
+  text-align: center;
+}
+
+/* INPUT */
+.admin-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* TABLE WRAPPER (SCROLL FIX) */
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+/* DELETE BUTTON */
+.btn-del {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.btn-del:hover {
+  background: #b91c1c;
+.table-scroll {
+  max-height: 300px;   /* adjust height (approx 10 rows) */
+  overflow-y: auto;
+  display: block;
+}
+
+.table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+}
+</style>
+<body>
+
+<div class="hero">
+  <h1>sri vinayaka chaturthi festival funding</h1>
+  <p>Valasareddigaripalli</p>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h3 style="text-align:center;">Festival Summary</h3>
+
+    <div class="donation-grid">
+      <div class="donation-box">
+        <h2>₹ <span id="totalBox">0</span></h2>
+        <p>Total collected amount</p>
+      </div>
+
+      <div class="donation-box">
+        <h2 id="membersBox">0</h2>
+        <p>Total members</p>
+      </div>
+
+      <div class="donation-box">
+        <h2>₹ <span id="expenseBox">0</span></h2>
+        <p>Total expenses</p>
+      </div>
+
+      <div class="donation-box" id="balanceBox">
+        <h2>₹ <span id="balanceBoxValue">0</span></h2>
+        <p>Balance</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard-grid" id="dashboard">
+
+  <!-- LEFT -->
+  <div style="display:flex; flex-direction:column; gap:25px;">
+
+    <div class="card">
+      <h3>Contributors</h3>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>PDF</th>
+            </tr>
+          </thead>
+          <tbody id="donorTable"></tbody>
+        </table>
+      </div>
+
+      <div class="yt-box">
+        <h4>📺 Support Our YouTube Channel</h4>
+        <img src="youtube.jpeg" class="yt-qr">
+        <p class="yt-text">Scan or Click to Subscribe</p>
+
+        <a href="https://youtube.com/@valasareddygaripalli_youth"
+           target="_blank"
+           class="btn">
+           Subscribe Now
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div style="display:flex; flex-direction:column; gap:25px;">
+
+    <div class="card countdown-card">
+      <h3>Festival Countdown</h3>
+
+      <div class="count-box">
+        <h2>🛕 SRI VINAYAKA CHATHURTHI 2026</h2>
+	<p>14-09-2026</p>
+        <div class="countdown big" id="countdown1"></div>
+      </div>
+
+      <div class="count-box" style="margin-top:20px;">
+        <h2>🎉 Shobhayatra</h2>
+        <p>14-09-2026</p>
+        <div class="countdown big" id="countdown2"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💰 Contribute Now</h3>
+      <img src="qr.jpeg" style="width:150px;border-radius:10px;margin:10px auto;display:block;">
+      <p id="upiId" style="text-align:center;font-weight:bold;">pyaswanth055@axl</p>
+
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn" onclick="copyUPI()">Copy UPI</button>
+        <a href="upi://pay?pa=pyaswanth055@axl&pn=VinayakaChaturthi2026&cu=INR" class="btn"> Now</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Expenses</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Item</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 🔥 ADD THESE SECTIONS INSIDE YOUR EXISTING HTML (after image slider or before admin) -->
+
+<!-- 📸 FEST PHOTOS QR SECTION (FINAL FIXED) -->
+<div style="margin-top:25px;">
+  <div class="card" style="text-align:center; padding:30px;">
+
+    <h3 style="margin-bottom:15px;">📸 Festival Photos</h3>
+
+    <div style="display:flex; align-items:center; justify-content:center; gap:25px; flex-wrap:wrap;">
+
+      <!-- QR IMAGE -->
+      <img src="./qr%20photos.jpeg"
+           alt="QR Code"
+           onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://q.me-qr.com/2w834wpt'"
+           style="width:140px; height:140px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+
+      <!-- TEXT -->
+      <div style="text-align:left; max-width:250px;">
+        <p style="font-weight:600; margin-bottom:10px;">
+          Scan QR to View & Download Festival Photos
+        </p>
+
+        <a href="https://q.me-qr.com/2w834wpt"
+           target="_blank"
+           class="btn"
+           style="display:inline-block; margin-top:5px;">
+           📥 Open Photo Gallery
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- 🔴 LIVE STREAM SECTION (FIXED CLEAN UI) -->
+<div class="card" style="text-align:center; padding:25px;">
+
+  <h3 style="margin-bottom:10px;">🔴 Live Shobhayatra</h3>
+
+  <p><b>📅 Date:</b> 14th Sep 2026</p>
+<p style="margin-bottom:15px;"><b>⏰ Time:</b> 6:00 PM</p>
+
+  <!-- BUTTON -->
+  <a id="liveBtn"
+     href="https://www.youtube.com/live/pNXvd07315o?si=iLqzy1wdXLOdJr_H"
+     target="_blank"
+     class="btn"
+     style="margin-top:50px;">
+     ▶ Watch Live
+  </a>
+
+</div>
+
+<!-- IMAGE SLIDER -->
+<div class="image-slider">
+  <div class="slider-track">
+    <img src="https://i.ibb.co/GfyZm6dC/temple.jpg">
+    <img src="https://i.ibb.co/6Jq0dGxH/valasa.jpg">
+    <img src="https://i.ibb.co/SkvRcg9/sankranthi.jpg">
+    <img src="https://i.ibb.co/cc7Kg0x7/vinayaka.jpg">
+    <img src="https://i.ibb.co/5gbdcsdZ/youth.jpg">
+    <img src="https://i.ibb.co/Gy6LZLf/revanth.jpg">
+
+    <!-- loop -->
+    <img src="https://i.ibb.co/GfyZm6dC/temple.jpg">
+    <img src="https://i.ibb.co/6Jq0dGxH/valasa.jpg">
+    <img src="https://i.ibb.co/SkvRcg9/sankranthi.jpg">
+    <img src="https://i.ibb.co/cc7Kg0x7/vinayaka.jpg">
+  </div>
+</div>
+
+<!-- 🔐 LOGIN -->
+<div class="container admin-panel" id="loginScreen" style="display:none;">
+  <div class="card admin-card">
+    <h2>Admin Login</h2>
+    <input id="adminUser" placeholder="Username" class="admin-input"><br><br>
+    <input id="adminPass" type="password" placeholder="Password" class="admin-input"><br><br>
+    <button class="btn" onclick="login()">Login</button>
+  </div>
+</div>
+
+<!-- 🛠 ADMIN DASHBOARD -->
+<div class="container admin-panel" id="adminHome" style="display:none;">
+
+  <div class="card">
+    <h2>Donor Management</h2>
+    <button class="btn" onclick="downloadCollectionPDF()">📄 Download Donor PDF</button>
+    <button class="btn" onclick="addDonor()">+ Add</button>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Amount</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="adminDonorTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Expense Management</h2>
+    <button class="btn" onclick="downloadExpensePDF()">📄 Download Expense PDF</button>
+    <button class="btn" onclick="addExpense()">+ Add</button>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Amount</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="adminExpenseTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADMIN BUTTON -->
+<button id="admin-btn" onclick="showLogin()">Admin</button>
+
+</body><script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDwsb52GAJf4mxScxEpfuG4hq_mhiFqLDk",
+  authDomain: "vinayaka-chavithi-2026-fc901.firebaseapp.com",
+  databaseURL: "https://vinayaka-chavithi-2026-fc901-default-rtdb.firebaseio.com",
+  projectId: "vinayaka-chavithi-2026-fc901",
+  storageBucket: "vinayaka-chavithi-2026-fc901.firebasestorage.app",
+  messagingSenderId: "319844842178",
+  appId: "1:319844842178:web:b7f1b2009db9d8b15e595b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let donors = [];
+let expenses = [];
+let donors=[],expenses=[];
+
+// 🔥 LOAD DATA
+async function loadData(){
+ const d=await fetch(API+"?type=donors"), donorData=await d.json();
+ const e=await fetch(API+"?type=expenses"), expenseData=await e.json();
+
+ donors=donorData.slice(1).map((r,i)=>({row:i+2,name:r[0],amount:r[1]}));
+ expenses=expenseData.slice(1).map((r,i)=>({row:i+2,item:r[0],amount:r[1]}));
+
+ render();
+ renderAdmin();
+}
+
+// 🔥 RENDER DASHBOARD
+function render(){
+ let total=0,totalExpense=0;
+
+ donorTable.innerHTML="";
+ expenseTable.innerHTML="";
+
+ // 🔥 SORT DONORS (HIGH → LOW)
+ donors.sort((a,b)=>Number(b.amount)-Number(a.amount));
+
+ // 🔥 GET UNIQUE AMOUNTS (DESC)
+ const uniqueAmounts = [...new Set(donors.map(d => Number(d.amount)))]
+   .sort((a,b)=>b-a);
+
+ const first = uniqueAmounts[0];
+ const second = uniqueAmounts[1];
+ const third = uniqueAmounts[2];
+
+ donors.forEach((d,index)=>{
+
+  let rowStyle = "";
+
+  if(Number(d.amount) === first){
+    rowStyle = "background:#4ade80;color:black;font-weight:bold"; // 🟢 GREEN
+  }
+  else if(Number(d.amount) === second){
+    rowStyle = "background:#60a5fa;color:black;font-weight:bold"; // 🔵 BLUE
+  }
+  else if(Number(d.amount) === third){
+    rowStyle = "background:#fb923c;color:black;font-weight:bold"; // 🟠 ORANGE
+  }
+
+  donorTable.innerHTML+=`
+  <tr style="${rowStyle}">
+    <td>${index+1}</td>
+    <td>${d.name}</td>
+    <td>₹${d.amount}</td>
+    <td><button class="btn" onclick="downloadPDF(${index})">PDF</button></td>
+  </tr>`;
+
+  total+=Number(d.amount);
+ });
+
+ expenses.forEach((e,index)=>{
+  expenseTable.innerHTML+=`
+  <tr>
+    <td>${index+1}</td>
+    <td>${e.item}</td>
+    <td>₹${e.amount}</td>
+  </tr>`;
+  totalExpense+=Number(e.amount);
+ });
+
+ // ✅ SUMMARY
+ document.getElementById("totalBox").innerText = total;
+ document.getElementById("membersBox").innerText = donors.length;
+ document.getElementById("expenseBox").innerText = totalExpense;
+
+ const balanceValue = total - totalExpense;
+ document.getElementById("balanceBoxValue").innerText = balanceValue;
+
+ // 🔥 BALANCE COLOR
+ const box = document.getElementById("balanceBox");
+ box.classList.remove("balance-green","balance-yellow","balance-red");
+
+ if(balanceValue < 0){
+  box.classList.add("balance-red");
+ }
+ else if(balanceValue <= 500){
+  box.classList.add("balance-yellow");
+ }
+ else{
+  box.classList.add("balance-green");
+ }
+}
+// 🔥 CRUD FUNCTIONS (OUTSIDE render)
+
+async function postData(data){
+  const params = new URLSearchParams();
+  for (const key in data){
+    params.append(key,data[key]);
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body:params
+  });
+}
+
+async function addDonor(){
+  const name = prompt("Enter Donor Name");
+  const amount = prompt("Enter Amount");
+  if(!name || !amount) return;
+
+  await postData({action:"addDonor",name,amount});
+  loadData();
+}
+
+async function editDonor(i){
+  const d = donors[i];
+  const name = prompt("Edit Name", d.name);
+  const amount = prompt("Edit Amount", d.amount);
+  if(!name || !amount) return;
+
+  await postData({action:"editDonor",row:d.row,name,amount});
+  loadData();
+}
+
+async function deleteDonor(i){
+  const d = donors[i];
+  if(!confirm("Delete donor?")) return;
+
+  await postData({action:"deleteDonor",row:d.row});
+  loadData();
+}
+
+// 🔥 ADMIN TABLE
+function renderAdmin(){
+
+  // DONOR TABLE
+  const dtable = document.getElementById("adminDonorTable");
+  if(dtable){
+    dtable.innerHTML="";
+
+    donors.forEach((d,i)=>{
+      dtable.innerHTML+=`
+      <tr>
+        <td>${d.name}</td>
+        <td>₹${d.amount}</td>
+        <td>
+          <button class="btn" onclick="editDonor(${i})">Edit</button>
+          <button class="btn-del" onclick="deleteDonor(${i})">Delete</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  // 🔥 EXPENSE TABLE
+  const etable = document.getElementById("adminExpenseTable");
+  if(!etable) return;
+
+  etable.innerHTML="";
+
+  expenses.forEach((e,i)=>{
+    etable.innerHTML+=`
+    <tr>
+      <td>${e.item}</td>
+      <td>₹${e.amount}</td>
+      <td>
+        <button class="btn" onclick="editExpense(${i})">Edit</button>
+        <button class="btn-del" onclick="deleteExpense(${i})">Delete</button>
+      </td>
+    </tr>`;
+  });
+}
+// 🔥 COUNTDOWN
+function startCountdown(){
+  const poojaDate = new Date("2026-09-14");
+  const yatraDate = new Date("2026-09-14");
+
+  setInterval(()=>{
+    const now = new Date();
+
+    function getTime(diff){
+      if(diff <= 0) return "Started 🎉";
+      let d = Math.floor(diff/86400000);
+      let h = Math.floor((diff%86400000)/3600000);
+      let m = Math.floor((diff%3600000)/60000);
+      return `${d}D ${h}H ${m}M`;
+    }
+
+    countdown1.innerText = getTime(poojaDate - now);
+    countdown2.innerText = getTime(yatraDate - now);
+
+  },1000);
+}
+
+// 🔥 LOGIN
+function login(){
+  const u=adminUser.value;
+  const p=adminPass.value;
+
+  if(u==="admin" && p==="Vinayaka@2026"){
+    loginScreen.style.display="none";
+    adminHome.style.display="grid";
+    renderAdmin();
+  } else {
+    alert("Invalid login ❌");
+  }
+}
+
+function showLogin(){
+  dashboard.style.display="none";
+  loginScreen.style.display="grid";
+}
+// 🔥 ADD EXPENSE
+async function addExpense(){
+  const item = prompt("Enter Expense Item");
+  const amount = prompt("Enter Amount");
+
+  if(!item || !amount) return;
+
+  await postData({action:"addExpense", item, amount});
+  loadData();
+}
+function downloadPDF(i){
+  const d = donors[i];
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // 🔥 HEADER BOX (Temple style)
+  doc.setFillColor(255, 153, 0); // saffron color
+  doc.rect(0, 0, 210, 30, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.text("SRI VINAYAKA CHATHURTHI 2026 Festival", 105, 18, null, null, "center");
+
+  // 🔥 RESET COLOR
+  doc.setTextColor(0,0,0);
+
+  // 🔥 SUBTITLE
+  doc.setFontSize(14);
+  doc.text("CONTRIBUTION Receipt", 105, 40, null, null, "center");
+
+  // 🔥 LINE
+  doc.setLineWidth(0.5);
+  doc.line(20, 45, 190, 45);
+
+  // 🔥 DETAILS BOX
+  doc.setDrawColor(200);
+  doc.rect(20, 55, 170, 80);
+
+  doc.setFontSize(12);
+
+  doc.text(`Receipt No: ${Math.floor(Math.random()*100000)}`, 25, 70);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 70);
+
+  doc.text("Donor Name:", 25, 90);
+  doc.setFont("helvetica", "bold");
+  doc.text(d.name, 80, 90);
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Amount Paid:", 25, 110);
+
+  // 🔥 BIG AMOUNT
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text(`₹ ${d.amount}`, 80, 110);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Amount in Words: ${d.amount} Rupees Only`, 25, 130);
+
+  // 🔥 THANK YOU BOX
+  doc.setFillColor(240, 240, 240);
+  doc.rect(20, 145, 170, 25, "F");
+
+  doc.setFontSize(12);
+  doc.text("🙏 Thank you for your contribution 🙏", 105, 160, null, null, "center");
+
+  // 🔥 SIGNATURE
+  doc.setFontSize(10);
+  doc.text("Authorized Signature", 140, 230);
+  doc.line(130, 225, 190, 225);
+
+  // 🔥 FOOTER
+  doc.setFontSize(10);
+  doc.text("Valasareddygaripalli Youth Committee", 105, 260, null, null, "center");
+
+  // 🔥 DOWNLOAD
+  doc.save(`${d.name}_Receipt.pdf`);
+}
+// 🔥 EDIT EXPENSE
+async function editExpense(i){
+  const e = expenses[i];
+
+  const item = prompt("Edit Item", e.item);
+  const amount = prompt("Edit Amount", e.amount);
+
+  if(!item || !amount) return;
+
+  await postData({
+    action:"editExpense",
+    row:e.row,
+    item,
+    amount
+  });
+
+  loadData();
+}
+
+// 🔥 DELETE EXPENSE
+async function deleteExpense(i){
+  const e = expenses[i];
+
+  if(!confirm("Delete expense?")) return;
+
+  await postData({
+    action:"deleteExpense",
+    row:e.row
+  });
+
+  loadData();
+}
+// 🔥 START
+startCountdown();
+loadData();
+setInterval(loadData, 5000);
+
+function checkLive(){
+  const now = new Date();
+  const liveDate = new Date("2026-09-14T18:00:00");
+
+  if(now >= liveDate){
+    document.querySelector(".card a[href*='youtube.com']").innerText = "🔴 LIVE NOW";
+    document.querySelector(".card a[href*='youtube.com']").style.background = "red";
+  }
+}
+
+checkLive();
+
+function downloadCollectionPDF(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // 🔥 HEADER (COLOR)
+  doc.setFillColor(255, 153, 0);
+  doc.rect(0, 0, 210, 25, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(255,255,255);
+  doc.text("sri vinayaka chaturthi Collection Report", 105, 16, null, null, "center");
+
+  doc.setTextColor(0,0,0);
+
+  // 🔥 DATE
+  doc.setFontSize(10);
+  doc.text("Date: " + new Date().toLocaleDateString(), 150, 35);
+
+  // 🔥 TABLE HEADER
+  let startY = 45;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+
+  doc.text("S.No", 15, startY);
+  doc.text("Donor Name", 40, startY);
+  doc.text("Amount (₹)", 150, startY);
+
+  doc.line(10, startY + 2, 200, startY + 2);
+
+  let y = startY + 10;
+  let total = 0;
+
+  doc.setFont("helvetica", "normal");
+
+  // 🔥 SORT (Top donors first)
+  donors.sort((a,b)=>Number(b.amount)-Number(a.amount));
+
+  donors.forEach((d, i) => {
+
+    if (y > 270){
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.text(String(i+1), 15, y);
+    doc.text(d.name.substring(0,25), 40, y); // prevent overflow
+    doc.text("₹ " + Number(d.amount), 150, y);
+
+    total += Number(d.amount);
+    y += 10;
+  });
+
+  // 🔥 SUMMARY BOX
+  y += 10;
+
+  doc.setDrawColor(150);
+  doc.rect(10, y, 190, 25);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+
+  doc.text("Total Collection: ₹ " + total, 15, y + 15);
+
+  // 🔥 FOOTER
+  doc.setFontSize(10);
+  doc.text("Valasareddygaripalli Youth Committee", 105, 285, null, null, "center");
+
+  // 🔥 SIGNATURE
+  doc.text("Authorized Signature", 150, 270);
+  doc.line(140, 265, 200, 265);
+
+  // 🔥 DOWNLOAD
+  doc.save("Collection_Report.pdf");
+}function downloadExpensePDF(){
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // 🔥 HEADER (COLOR BOX)
+  doc.setFillColor(255, 153, 0);
+  doc.rect(0, 0, 210, 25, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(255,255,255);
+  doc.text("sri vinayaka chaturthi Expense Report", 105, 16, null, null, "center");
+
+  doc.setTextColor(0,0,0);
+
+  // 🔥 DATE
+  doc.setFontSize(10);
+  doc.text("Date: " + new Date().toLocaleDateString(), 150, 35);
+
+  // 🔥 TABLE HEADER BOX
+  doc.setDrawColor(0);
+  doc.setLineWidth(0.5);
+
+  let startY = 45;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+
+  doc.text("S.No", 15, startY);
+  doc.text("Reason / Item", 35, startY);
+  doc.text("Amount", 130, startY);
+  doc.text("Balance", 170, startY);
+
+  doc.line(10, startY + 2, 200, startY + 2);
+
+  let y = startY + 10;
+
+  // 🔥 CALCULATIONS
+  let totalCollection = 0;
+  donors.forEach(d => totalCollection += Number(d.amount));
+
+  let balance = totalCollection;
+  let totalExpense = 0;
+
+  doc.setFont("helvetica", "normal");
+
+  expenses.forEach((e, i) => {
+
+    if (y > 270){
+      doc.addPage();
+      y = 20;
+    }
+
+    balance -= Number(e.amount);
+    totalExpense += Number(e.amount);
+
+    doc.text(String(i+1), 15, y);
+    doc.text(e.item.substring(0,25), 35, y); // limit long text
+    doc.text("₹ " + Number(e.amount), 130, y);
+    doc.text("₹ " + balance, 170, y);
+
+    y += 10;
+  });
+
+  // 🔥 SUMMARY BOX
+  y += 10;
+
+  doc.setDrawColor(150);
+  doc.rect(10, y, 190, 35);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+
+  doc.text("Total Collection: ₹ " + totalCollection, 15, y + 10);
+  doc.text("Total Expenses: ₹ " + totalExpense, 15, y + 20);
+  doc.text("Final Balance: ₹ " + balance, 15, y + 30);
+
+  // 🔥 FOOTER
+  doc.setFontSize(10);
+  doc.text("Valasareddygaripalli Youth Committee", 105, 285, null, null, "center");
+
+  // 🔥 SIGNATURE
+  doc.text("Authorized Signature", 150, 270);
+  doc.line(140, 265, 200, 265);
+
+  // 🔥 DOWNLOAD
+  doc.save("Expense_Report.pdf");
+}
+</script>
+
+</body>
+</html>
